@@ -23,8 +23,11 @@
 package com.extrahardmode.task;
 
 
+import java.util.logging.Logger;
+
 import com.extrahardmode.ExtraHardMode;
 import com.extrahardmode.module.BlockModule;
+
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 
@@ -34,6 +37,12 @@ import org.bukkit.block.Block;
 public class EvaporateWaterTask implements Runnable
 {
 
+    private static final Logger log_ = Logger.getLogger("ExtraHardMode");
+
+    private static void info(String message)
+    {
+    	log_.info("[ExtraHardMode] "+message);
+    }
     /**
      * Target block.
      */
@@ -60,11 +69,18 @@ public class EvaporateWaterTask implements Runnable
     @Override
     public void run()
     {
-        if (block.getType() == Material.STATIONARY_WATER || block.getType() == Material.WATER)
+    	boolean isWater = block.getType() == Material.STATIONARY_WATER || block.getType() == Material.WATER;
+    	boolean isLava = block.getType() == Material.STATIONARY_LAVA || block.getType() == Material.LAVA;
+    	//info("isWater: "+isWater);
+    	//info("isLava: "+isLava);
+        if (isWater || isLava)
         {
+        	//info("Setting block metadata to 1");
             block.setData((byte) 1);
-            //Finished processing
+            //Finished processinge
             blockModule.removeMark(block);
+            //ForceUpdate
+            //block.setType(block.getType());
         }
     }
 }

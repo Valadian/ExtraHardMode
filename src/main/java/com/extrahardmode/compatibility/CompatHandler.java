@@ -73,37 +73,37 @@ public class CompatHandler extends EHMModule
         monsterProtectionPls = new HashSet<IMonsterProtection>();
         blockLoggerPls = new HashSet<IBlockLogger>();
 
-        //Check if spawns are allowed
-        CompatWorldGuard w = new CompatWorldGuard();
-        if (w.isEnabled())
-            monsterProtectionPls.add(w);
+//        //Check if spawns are allowed
+//        CompatWorldGuard w = new CompatWorldGuard();
+//        if (w.isEnabled())
+//            monsterProtectionPls.add(w);
 
-        //BlockLoggers//
-        //Prism
-        CompatPrism prismCompat = new CompatPrism(plugin);
-        if (prismCompat.isEnabled())
-            blockLoggerPls.add(prismCompat);
-
-        //HawkEye Reloaded
-        try
-        {
-            CompatHawkEye compatHawkEye = new CompatHawkEye(plugin);
-            if (compatHawkEye.isEnabled())
-                blockLoggerPls.add(compatHawkEye);
-        } catch (Error ignored) //ClassNotFoundException, but that doesn't catch for whatever reason, whateeeeever
-        {
-            //Static API I guess, stop wasting my time any further or you are gonna get removed
-        }
-
-        //CoreProtect
-        CompatCoreProtect compatCoreProtect = new CompatCoreProtect(plugin);
-        if (compatCoreProtect.isEnabled())
-            blockLoggerPls.add(compatCoreProtect);
-
-        //LogBlock
-        CompatLogBlock compatLogBlock = new CompatLogBlock(plugin);
-        if (compatLogBlock.isEnabled())
-            blockLoggerPls.add(compatLogBlock);
+//        //BlockLoggers//
+//        //Prism
+//        CompatPrism prismCompat = new CompatPrism(plugin);
+//        if (prismCompat.isEnabled())
+//            blockLoggerPls.add(prismCompat);
+//
+//        //HawkEye Reloaded
+//        try
+//        {
+//            CompatHawkEye compatHawkEye = new CompatHawkEye(plugin);
+//            if (compatHawkEye.isEnabled())
+//                blockLoggerPls.add(compatHawkEye);
+//        } catch (Error ignored) //ClassNotFoundException, but that doesn't catch for whatever reason, whateeeeever
+//        {
+//            //Static API I guess, stop wasting my time any further or you are gonna get removed
+//        }
+//
+//        //CoreProtect
+//        CompatCoreProtect compatCoreProtect = new CompatCoreProtect(plugin);
+//        if (compatCoreProtect.isEnabled())
+//            blockLoggerPls.add(compatCoreProtect);
+//
+//        //LogBlock
+//        CompatLogBlock compatLogBlock = new CompatLogBlock(plugin);
+//        if (compatLogBlock.isEnabled())
+//            blockLoggerPls.add(compatLogBlock);
     }
 
 

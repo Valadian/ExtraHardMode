@@ -22,6 +22,8 @@
 package com.extrahardmode.features;
 
 
+import java.util.logging.Logger;
+
 import com.extrahardmode.ExtraHardMode;
 import com.extrahardmode.config.RootConfig;
 import com.extrahardmode.config.RootNode;
@@ -32,6 +34,7 @@ import com.extrahardmode.module.PlayerModule;
 import com.extrahardmode.service.Feature;
 import com.extrahardmode.service.ListenerModule;
 import com.extrahardmode.service.PermissionNode;
+
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -48,6 +51,12 @@ import org.bukkit.event.block.BlockPlaceEvent;
  */
 public class LimitedBuilding extends ListenerModule
 {
+    private static final Logger log_ = Logger.getLogger("ExtraHardMode");
+
+    private static void info(String message)
+    {
+    	log_.info("[ExtraHardMode] "+message);
+    }
     private RootConfig CFG;
 
     private MsgModule messenger;
@@ -80,6 +89,9 @@ public class LimitedBuilding extends ListenerModule
     {
         Player player = placeEvent.getPlayer();
         Block block = placeEvent.getBlock();
+        //Allow tilling soil beneath you
+        if(block.getType() == Material.SOIL)
+        	return;
         World world = block.getWorld();
 
         final boolean limitedBlockPlacement = CFG.getBoolean(RootNode.LIMITED_BLOCK_PLACEMENT, world.getName());

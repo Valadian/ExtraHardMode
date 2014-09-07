@@ -34,10 +34,12 @@ import com.extrahardmode.module.UtilityModule;
 import com.extrahardmode.service.Feature;
 import com.extrahardmode.service.ListenerModule;
 import com.extrahardmode.service.PermissionNode;
+
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -50,6 +52,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Hardened Stone is there to make branchmining harder/impossible
@@ -59,6 +62,12 @@ import java.util.Map;
  */
 public class HardenedStone extends ListenerModule
 {
+    private static final Logger log_ = Logger.getLogger("ExtraHardMode");
+
+    private static void info(String message)
+    {
+    	log_.info("[ExtraHardMode] "+message);
+    }
     private RootConfig CFG;
 
     private MsgModule messenger;
@@ -88,7 +97,7 @@ public class HardenedStone extends ListenerModule
     /**
      * When a player breaks stone
      */
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void onBlockBreak(BlockBreakEvent event)
     {
         Block block = event.getBlock();
@@ -98,6 +107,7 @@ public class HardenedStone extends ListenerModule
         final boolean hardStoneEnabled = CFG.getBoolean(RootNode.SUPER_HARD_STONE, world.getName());
         final boolean hardStonePhysix = CFG.getBoolean(RootNode.SUPER_HARD_STONE_PHYSICS, world.getName());
         final boolean playerBypasses = playerModule.playerBypasses(player, Feature.HARDENEDSTONE);
+        final boolean cancelled = event.isCancelled();
 
         final Map<Integer, List<Byte>> tools = CFG.getMappedNode(RootNode.SUPER_HARD_STONE_TOOLS, world.getName());
         final Map<Integer, List<Byte>> physicsBlocks = CFG.getMappedNode(RootNode.SUPER_HARD_STONE_PHYSICS_BLOCKS, world.getName());
@@ -112,7 +122,7 @@ public class HardenedStone extends ListenerModule
                 int toolId = inHandStack.getType().getId();
                 EhmHardenedStoneEvent hardEvent = new EhmHardenedStoneEvent(player, inHandStack, tools.get(toolId) != null ? (short) tools.get(toolId).get(0) : 0);
 
-                if (tools.containsKey(toolId))
+                if (tools.containsKey(toolId) && !cancelled)
                 {
                     if (!tools.get(toolId).isEmpty())
                     {
@@ -122,7 +132,21 @@ public class HardenedStone extends ListenerModule
                         // otherwise, drastically reduce tool durability when breaking stone
                         if (hardEvent.getNumOfBlocks() > 0)
                         {
-                            player.setItemInHand(UtilityModule.damage(hardEvent.getTool(), hardEvent.getNumOfBlocks()));
+                        	ItemStack inHand = hardEvent.getTool();
+                        	int unbreaking = 1;
+                        	//info("Enchants: "+ inHand.getEnchantments());
+                        	if(inHand!=null && inHand.getEnchantments().containsKey(Enchantment.DURABILITY))
+                        	{
+                                //info("Hand has Looting");
+                        		unbreaking += inHand.getEnchantments().get(Enchantment.DURABILITY);
+                                //info("Drop Scale is now: "+ dropScale);
+                        	}
+                        	//info("Unbreaking: "+ unbreaking);
+                        	int chanceToBreak = 100/unbreaking;
+                        	//info("ChanceToBreak: "+ chanceToBreak);
+                        	if(plugin.random(chanceToBreak)){
+                            	player.setItemInHand(UtilityModule.damage(hardEvent.getTool(), hardEvent.getNumOfBlocks()));
+                        	}
                         }
                     }
                 }

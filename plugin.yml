@@ -1,8 +1,8 @@
-name: ${project.artifactId}
-main: ${project.mainclass}
-version: ${project.version}
-description: ${project.description}
-dev-url: ${project.url}
+name: ExtraHardMode
+main: com.extrahardmode.ExtraHardMode
+version: 3.4.2
+description: New game rules and mechanics for Minecraft.
+dev-url: http://dev.bukkit.org/server-mods/fun-hard-mode
 #project lead
 author: Diemex
 authors: [Mitsugaru, bigscary]

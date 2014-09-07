@@ -36,6 +36,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -104,7 +105,7 @@ public class Players extends ListenerModule
         if (respawnFood < 20 && respawnHealthPercentage > 0 && respawnHealthPercentage < 100)
         {
             //TODO HIGH EhmPlayerRespawnEvent
-            SetPlayerHealthAndFoodTask task = new SetPlayerHealthAndFoodTask(player, player.getMaxHealth() * respawnHealthPercentage / 100.0D, respawnFood);
+            SetPlayerHealthAndFoodTask task = new SetPlayerHealthAndFoodTask(player, ((Damageable)player).getMaxHealth() * respawnHealthPercentage / 100.0D, respawnFood);
             plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, task, 10L); // half-second delay
         }
         // FEATURE: players can't swim when they're carrying a lot of weight, reset the cached value

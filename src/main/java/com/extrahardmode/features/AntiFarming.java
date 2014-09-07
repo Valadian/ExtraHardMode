@@ -22,6 +22,8 @@
 package com.extrahardmode.features;
 
 
+import java.util.logging.Logger;
+
 import com.extrahardmode.ExtraHardMode;
 import com.extrahardmode.config.RootConfig;
 import com.extrahardmode.config.RootNode;
@@ -32,7 +34,9 @@ import com.extrahardmode.module.PlayerModule;
 import com.extrahardmode.service.Feature;
 import com.extrahardmode.service.ListenerModule;
 import com.extrahardmode.task.EvaporateWaterTask;
+
 import org.bukkit.DyeColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
@@ -58,6 +62,13 @@ import org.bukkit.util.Vector;
  */
 public class AntiFarming extends ListenerModule
 {
+    private static final Logger log_ = Logger.getLogger("ExtraHardMode");
+
+    private static void info(String message)
+    {
+    	log_.info("[ExtraHardMode] "+message);
+    }
+
     private RootConfig CFG;
 
     private PlayerModule playerModule;
@@ -232,27 +243,36 @@ public class AntiFarming extends ListenerModule
         if (dontMoveWaterEnabled)
         {
             // only care about water
-            if (event.getItem().getType() == Material.WATER_BUCKET)
+        	boolean isWaterBucket = event.getItem().getType() == Material.WATER_BUCKET;
+        	boolean isLavaBucket = event.getItem().getType() == Material.LAVA_BUCKET;
+        	//info("isWaterBucket: "+isWaterBucket);
+        	//info("isLavaBucket: "+isLavaBucket);
+            if (isWaterBucket || isLavaBucket)
             {
+            	//info("going to evaporate!");
                 // plan to evaporate the water next tick
                 Block block;
                 Vector velocity = event.getVelocity();
-                if (velocity.getX() > 0.0)
-                {
-                    block = event.getBlock().getLocation().add(1.0, 0.0, 0.0).getBlock();
-                } else if (velocity.getX() < 0.0)
-                {
-                    block = event.getBlock().getLocation().add(-1.0, 0.0, 0.0).getBlock();
-                } else if (velocity.getZ() > 0.0)
-                {
-                    block = event.getBlock().getLocation().add(0.0, 0.0, 1.0).getBlock();
-                } else
-                {
-                    block = event.getBlock().getLocation().add(0.0, 0.0, -1.0).getBlock();
-                }
+                //VELOCITY IS DESTINATION!
+            	//info("Velocity: "+velocity);
+//                if (velocity.getX() > 0.0)
+//                {
+//                    block = event.getBlock().getLocation().add(1.0, 0.0, 0.0).getBlock();
+//                } else if (velocity.getX() < 0.0)
+//                {
+//                    block = event.getBlock().getLocation().add(-1.0, 0.0, 0.0).getBlock();
+//                } else if (velocity.getZ() > 0.0)
+//                {
+//                    block = event.getBlock().getLocation().add(0.0, 0.0, 1.0).getBlock();
+//                } else
+//                {
+//                    block = event.getBlock().getLocation().add(0.0, 0.0, -1.0).getBlock();
+//                }
+                block = velocity.toLocation(event.getBlock().getWorld()).getBlock();
 
+            	//info("Block to Evaporate: "+block);
                 EvaporateWaterTask task = new EvaporateWaterTask(block, plugin);
-                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, task, 1L);
+                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, task, 10L);
             }
         }
     }
@@ -385,13 +405,23 @@ public class AntiFarming extends ListenerModule
         final boolean playerBypasses = playerModule.playerBypasses(player, Feature.ANTIFARMING);
 
         // FEATURE: can't move water source blocks
-        if (!playerBypasses && dontMoveWaterEnabled && player.getItemInHand().getType().equals(Material.WATER_BUCKET))
+
+    	boolean isWaterBucket = player.getItemInHand().getType().equals(Material.WATER_BUCKET);
+    	boolean isLavaBucket = player.getItemInHand().getType().equals(Material.LAVA_BUCKET);
+    	//info("isWaterBucket: "+isWaterBucket);
+    	//info("isLavaBucket: "+isLavaBucket);
+        if (!playerBypasses && dontMoveWaterEnabled && (isWaterBucket || isLavaBucket))
         {
+        	//info("going to evaporate!");
             // plan to change this block into a non-source block on the next tick
             Block block = event.getBlockClicked().getRelative(event.getBlockFace());
             blockModule.mark(block);
+        	//info("Block to Evaporate: "+block);
             EvaporateWaterTask task = new EvaporateWaterTask(block, plugin);
-            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, task, 10L);
+            long delay = 10L;
+            if(isLavaBucket)
+            	delay = 100L;
+            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, task, delay);
         }
     }
 

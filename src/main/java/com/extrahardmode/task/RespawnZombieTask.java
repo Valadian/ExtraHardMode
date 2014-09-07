@@ -25,8 +25,10 @@ package com.extrahardmode.task;
 
 import com.extrahardmode.ExtraHardMode;
 import com.extrahardmode.module.EntityHelper;
+
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.entity.Damageable;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Zombie;
@@ -78,7 +80,7 @@ public class RespawnZombieTask implements Runnable
         }
         Zombie zombie = (Zombie) location.getWorld().spawnEntity(location, EntityType.ZOMBIE);
         // zombie has half normal zombie health
-        zombie.setHealth(zombie.getHealth() / 2);
+        zombie.setHealth(((Damageable)zombie).getHealth() / 2);
         // this zombie will not drop loot (again)
         EntityHelper.markLootLess(plugin, zombie);
         EntityHelper.markAsOurs(plugin, zombie);

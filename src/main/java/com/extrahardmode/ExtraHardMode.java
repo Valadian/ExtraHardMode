@@ -29,17 +29,18 @@ import com.extrahardmode.config.RootConfig;
 import com.extrahardmode.config.messages.MessageConfig;
 import com.extrahardmode.features.*;
 import com.extrahardmode.features.monsters.*;
-import com.extrahardmode.metrics.ConfigPlotter;
 import com.extrahardmode.module.*;
 import com.extrahardmode.service.IModule;
 import com.extrahardmode.service.OurRandom;
 import com.extrahardmode.task.MoreMonstersTask;
+
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.logging.Logger;
 
 
 /**
@@ -48,6 +49,18 @@ import java.util.Random;
 public class ExtraHardMode extends JavaPlugin
 {
 
+	public static boolean debug = false;
+    private static final Logger log_ = Logger.getLogger("ExtraHardMode");
+    public static void info(String message)
+    {
+    	log_.info("[ExtraHardMode] "+message);
+    }
+
+    private static void debug(String message)
+    {
+    	if(debug)
+    		log_.info("[ExtraHardMode] "+message);
+    }
     /**
      * Plugin tag.
      */
@@ -130,8 +143,8 @@ public class ExtraHardMode extends JavaPlugin
         MoreMonstersTask task = new MoreMonstersTask(this);
         this.getServer().getScheduler().scheduleSyncRepeatingTask(this, task, 600L, 600L);
 
-        //Metrics Plotter, this gets included by maven
-        new ConfigPlotter(this, getModuleForClass(RootConfig.class));
+//        //Metrics Plotter, this gets included by maven
+//        new ConfigPlotter(this, getModuleForClass(RootConfig.class));
     }
 
 

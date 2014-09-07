@@ -22,21 +22,26 @@
 package com.extrahardmode.features.monsters;
 
 
+import java.util.logging.Logger;
+
 import com.extrahardmode.ExtraHardMode;
 import com.extrahardmode.config.RootConfig;
 import com.extrahardmode.config.RootNode;
 import com.extrahardmode.module.EntityHelper;
 import com.extrahardmode.service.ListenerModule;
+
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LightningStrike;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.PigZombie;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -52,8 +57,13 @@ import org.bukkit.inventory.ItemStack;
  */
 public class PigMen extends ListenerModule
 {
-    private RootConfig CFG;
+    private static final Logger log_ = Logger.getLogger("ExtraHardMode");
 
+    private static void info(String message)
+    {
+    	log_.info("[ExtraHardMode] "+message);
+    }
+    private RootConfig CFG;
 
     public PigMen(ExtraHardMode plugin)
     {
@@ -86,13 +96,52 @@ public class PigMen extends ListenerModule
         // FEATURE: pig zombies drop nether wart when slain in nether fortresses
         if (world.getEnvironment().equals(World.Environment.NETHER) && entity instanceof PigZombie)
         {
-            Block underBlock = entity.getLocation().getBlock().getRelative(BlockFace.DOWN);
-            if (pigWartFortress && underBlock.getType() == Material.NETHER_BRICK)
-                event.getDrops().add(new ItemStack(Material.NETHER_STALK));
+            int dropScale = 1;
+            //info("Drop Scale is: 1");
+            Entity damager = event.getEntity().getKiller();
+            //info("Damager is: "+damager.toString());
+            if (damager instanceof Player){
 
-                // FEATURE: pig zombies sometimes drop nether wart when slain elsewhere
-            else if (pigWartDropEveryWherePercent > 0 && plugin.random(pigWartDropEveryWherePercent))
-                event.getDrops().add(new ItemStack(Material.NETHER_STALK));
+                //info("Damager is Player");
+            	ItemStack inHand = ((Player) damager).getItemInHand();
+                //info("Weapon is: "+ inHand);
+                //if(inHand!=null)
+                //{
+                //	info("Enchantments: "+inHand.getEnchantments());
+                //	info("Looting Level: "+inHand.getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS));
+                //}
+                //boolean hasLootBonus = (inHand!=null && inHand.getEnchantments().containsKey(Enchantment.LOOT_BONUS_MOBS));
+                //nfo("Weapon has Looting? "+ hasLootBonus);
+            	if(inHand!=null && inHand.getEnchantments().containsKey(Enchantment.LOOT_BONUS_MOBS))
+            	{
+                    //info("Hand has Looting");
+            		dropScale += inHand.getEnchantments().get(Enchantment.LOOT_BONUS_MOBS);
+                    //info("Drop Scale is now: "+ dropScale);
+            	}
+            }
+            Block underBlock = entity.getLocation().getBlock().getRelative(BlockFace.DOWN);
+            if (pigWartFortress && underBlock.getType() == Material.NETHER_BRICK){
+            	ItemStack drop = new ItemStack(Material.NETHER_STALK);
+                //info("Setting Itemstack amount to: "+ dropScale);
+            	drop.setAmount(dropScale);
+                event.getDrops().add(drop);
+            }
+            // FEATURE: pig zombies sometimes drop nether wart when slain elsewhere
+            else if (pigWartDropEveryWherePercent > 0 /*&& plugin.random(pigWartDropEveryWherePercent)*/) {
+            	for(int i=0;i<dropScale;i++)
+            	{
+            		if(plugin.random(pigWartDropEveryWherePercent))
+            		{
+                        //info("Adding netherstalk");
+                        event.getDrops().add(new ItemStack(Material.NETHER_STALK));
+            		}
+            	}
+            	//ItemStack drop = new ItemStack(Material.NETHER_STALK);
+                //info("Setting Itemstack amount to: "+ dropScale);
+            	//drop.setAmount(dropScale);
+                //event.getDrops().add(new ItemStack(Material.NETHER_STALK));
+            }
+            
         }
     }
 
